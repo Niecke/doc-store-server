@@ -8,7 +8,7 @@ on:
 env:
     REGION: europe-west3
     REPOSITORY: doc-store-docker-repo
-    PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+    PROJECT_ID: doc-store-470214
     SERVICE_NAME: doc-store-backend
     IMAGE_NAME: doc-store-backend
 

@@ -7,7 +7,8 @@ Create Date: 2026-03-07 20:33:51.560157
 """
 from alembic import op
 import sqlalchemy as sa
-from app import db, User, Role, hash_password
+from app import db, User, Role
+from password_handler import hash_password
 
 
 

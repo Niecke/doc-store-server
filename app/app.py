@@ -7,47 +7,26 @@ from flask_migrate import Migrate
 import os
 import logging
 import sys
+from password_handler import verify_password
+from config import (
+    MYSQL_USER,
+    MYSQL_PASSWORD,
+    MYSQL_HOST,
+    MYSQL_PORT,
+    MYSQL_DB,
+    SECRET_KEY,
+    SQLALCHEMY_TRACK_MODIFICATIONS,
+    SQLALCHEMY_ENGINE_OPTIONS
+)
 
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['SECRET_KEY'] = SECRET_KEY
 # PyMySQL connection string
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}:{os.getenv('MYSQL_PORT')}/{os.getenv('MYSQL_DB')}?ssl_disabled=0&client_flag=4"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_pre_ping': True,
-    'pool_recycle': 3600,  # Recycle every hour
-    'pool_timeout': 30,
-    'pool_size': 5,
-    'max_overflow': 10
-}
-
-
-from argon2 import PasswordHasher
-from argon2.exceptions import VerifyMismatchError
-
-# Global hasher instance
-password_hasher = PasswordHasher(
-    time_cost=2,      # iterations (balance between security/speed)
-    memory_cost=65536, # memory usage (makes GPU attacks expensive)
-    parallelism=4     # CPU threads
-)
-
-# Hash password
-def hash_password(password):
-    return password_hasher.hash(password)
-
-# Verify password
-def verify_password(password, password_hash):
-    try:
-        password_hasher.verify(password_hash, password)
-        # Rehash if parameters changed (future-proof)
-        if password_hasher.check_needs_rehash(password_hash):
-            return hash_password(password)
-        return True
-    except VerifyMismatchError:
-        return False
+app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}?ssl_disabled=0&client_flag=4"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = SQLALCHEMY_ENGINE_OPTIONS
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)

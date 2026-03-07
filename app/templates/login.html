@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - DocStore</title>
+    <style>
+        body { font-family: Arial; max-width: 400px; margin: 100px auto; padding: 20px; }
+        input { width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .flash { color: red; margin: 10px 0; }
+        .logout { background: #dc3545; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h2>DocStore Login</h2>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash">{{ messages[0] }}</div>
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST">
+        <input name="username" placeholder="Username (admin)" required autofocus>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+    
+    {% if session.user_id %}
+        <form method="POST" action="{{ url_for('logout') }}">
+            <button class="logout" type="submit">Logout</button>
+        </form>
+    {% endif %}
+</body>
+</html>

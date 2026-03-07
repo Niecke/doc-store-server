@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: docker.io/library/mysql:8.3
+    container_name: docstore-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword123
+      MYSQL_DATABASE: docstore
+      MYSQL_USER: user
+      MYSQL_PASSWORD: your_secure_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  app:
+    build: .
+    container_name: docstore-app
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./app:/app
+      - ./requirements.txt:/requirements.txt
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: user
+      MYSQL_PASSWORD: your_secure_password
+      MYSQL_DB: docstore
+      MYSQL_PORT: 3306
+      SECRET_KEY: your-super-secret-key-change-me
+    restart: unless-stopped
+    command: ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--reload", "--reload-engine", "poll", "app:app"]
+
+volumes:
+  mysql_data:

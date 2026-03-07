@@ -34,7 +34,7 @@ services:
       MYSQL_PORT: 3306
       SECRET_KEY: your-super-secret-key-change-me
     restart: unless-stopped
-    command: ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--reload", "--reload-engine", "poll", "app:app"]
+    #command: ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--reload", "--reload-engine", "poll", "app:app"]
 
 volumes:
   mysql_data:

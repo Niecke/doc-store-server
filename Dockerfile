@@ -14,6 +14,7 @@ RUN chmod +x /entrypoint.sh
 RUN pip install --no-cache-dir -r /requirements.txt
 
 ENV PYTHONUNBUFFERED=1
+ENV FLASK_APP=main:create_app()
 
 # Expose port 8080 (Cloud Run requirement)
 EXPOSE 8080

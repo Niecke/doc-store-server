@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from password_handler import hash_password
 
 db = SQLAlchemy()
 
@@ -14,7 +15,7 @@ class Role(db.Model):
 
 class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     active = db.Column(db.Boolean())
     roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
@@ -22,3 +23,7 @@ class User(db.Model):
     def is_authenticated(self):
         """Returns True if user is active"""
         return self.active
+    
+    def set_password(self, password):
+        # TODO add checks for secure passwords
+        self.password = hash_password(password),

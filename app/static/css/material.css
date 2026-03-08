@@ -50,3 +50,13 @@ input:focus { outline: none; border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(2
 .btn-sm { padding: 0.25rem 0.75rem; font-size: 0.875rem; }
 .roles { display: inline-flex; flex-wrap: wrap; gap: 0.25rem; }
 .text-muted { color: #5f6368; font-style: italic; }
+
+.form-group { margin-bottom: 1.5rem; }
+.form-control { 
+    width: 100%; padding: 0.75rem; border: 1px solid #dadce0; 
+    border-radius: 4px; font-size: 1rem;
+}
+.form-control:focus { border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
+.checkbox-label { display: flex; align-items: center; font-weight: 500; }
+.checkbox-label input { margin-right: 0.5rem; width: auto; }
+.form-actions { display: flex; gap: 1rem; margin-top: 2rem; }

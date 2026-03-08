@@ -11,8 +11,7 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Username</th>
-                    <th>Email</th>
+                    <th>E-Mail</th>
                     <th>Roles</th>
                     <th>Active</th>
                     <th>Actions</th>
@@ -22,7 +21,6 @@
                 {% for user in users %}
                 <tr>
                     <td>{{ user.id }}</td>
-                    <td>{{ user.username }}</td>
                     <td>{{ user.email }}</td>
                     <td>
                         {% if user.roles %}
@@ -44,7 +42,7 @@
                     <td>
                             <a href="{{ url_for('admin.user_edit', id=user.id) }}" class="btn btn-secondary btn-sm">Edit</a>
                             <a href="{{ url_for('admin.user_delete', id=user.id) }}" class="btn btn-danger btn-sm" 
-                               onclick="return confirm('Delete {{ user.username }}?')">Delete</a>
+                               onclick="return confirm('Delete {{ user.email }}?')">Delete</a>
                     </td>
                 </tr>
                 {% else %}

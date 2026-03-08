@@ -31,11 +31,11 @@ def upgrade():
     )
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('username', sa.String(length=80), nullable=False),
+    sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('password', sa.String(length=255), nullable=False),
     sa.Column('active', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('username')
+    sa.UniqueConstraint('email')
     )
     op.create_table('roles_users',
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -53,8 +53,7 @@ def upgrade():
     
     # Create admin user
     admin_user = User(
-        #email='admin@localhost.local',
-        username="admin",
+        email='admin',
         password=hash_password('admin123'),
         roles=[admin_role],
         active=True,

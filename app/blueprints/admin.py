@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template
-from models import User
+from flask import Blueprint, render_template, request, flash, redirect, url_for
+from models import db, User
 from security import login_required, require_role
 from current_user import current_user
 
@@ -17,7 +17,30 @@ def dashboard():
 @login_required
 @require_role('admin')
 def user_create():
-    return ""
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        active = 'active' in request.form
+        
+        # Check if user exists
+        if User.query.filter((User.email == email)).first():
+            flash('EMail or email already exists!', 'error')
+            return render_template('admin/user_create.html', current_user=current_user,)
+        
+        # Create user
+        user = User(
+            email=email,
+            active=active,
+        )
+        user.set_password(password)  # Your password hash method
+        
+        db.session.add(user)
+        db.session.commit()
+        
+        flash(f'User "{email}" created successfully!', 'success')
+        return redirect(url_for('admin.dashboard'))
+    
+    return render_template('admin/user_create.html', current_user=current_user,)
 
 
 

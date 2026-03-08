@@ -26,12 +26,11 @@ def user_create():
             flash('EMail or email already exists!', 'error')
             return render_template('admin/user_create.html')
         
-        # Create user
         user = User(
             email=email,
             active=active,
         )
-        user.set_password(password)  # Your password hash method
+        user.set_password(password)
         
         db.session.add(user)
         db.session.commit()
@@ -43,15 +42,31 @@ def user_create():
 
 
 
-@admin.route('/admin/user_edit', methods=['GET', 'POST'])
+@admin.route('/admin/user_edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 @require_role('admin')
-def user_edit():
-    return ""
+def user_edit(id):
+    flash(f'Not implemented yet', 'error')
+    return redirect(url_for('admin.dashboard'))
 
 
-@admin.route('/admin/user_delete', methods=['GET', 'POST'])
+
+@admin.route('/admin/user_delete/<int:id>', methods=['GET'])
 @login_required
 @require_role('admin')
-def user_delete():
-    return ""
+def user_delete(id):
+    user = User.query.get(id)
+
+    if not user:
+        flash(f'User ID "{id}" unkown!', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    if user.email == "admin":
+        flash(f'The internal admin user can not be deleted!', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    db.session.delete(user)
+    db.session.commit()
+
+    flash(f'User "{user.email}" deleted!', 'success')
+    return redirect(url_for('admin.dashboard'))

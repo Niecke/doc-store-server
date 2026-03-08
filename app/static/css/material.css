@@ -1,0 +1,41 @@
+/* Google Material Design - Clean & Modern */
+* { box-sizing: border-box; }
+body {
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    margin: 0; padding: 0; background: #f8f9fa;
+    color: #202124; line-height: 1.5;
+}
+.navbar {
+    background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;
+}
+.nav-brand { font-size: 1.5rem; font-weight: 500; color: #1a73e8; }
+.nav-menu a {
+    margin-left: 2rem; color: #5f6368; text-decoration: none; font-weight: 500;
+}
+.nav-menu a:hover { color: #1a73e8; }
+.container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+h1, h2 { color: #202124; }
+button, .btn {
+    background: #1a73e8; color: white; border: none; padding: 0.75rem 1.5rem;
+    border-radius: 4px; font-weight: 500; cursor: pointer; transition: background 0.2s;
+}
+.btn:hover { background: #1557b0; }
+.btn-secondary { background: #f8f9fa; color: #3c4043; border: 1px solid #dadce0; }
+input, textarea, select {
+    width: 100%; padding: 0.75rem; border: 1px solid #dadce0; border-radius: 4px;
+    font-size: 1rem; margin-bottom: 1rem;
+}
+input:focus { outline: none; border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
+.alert {
+    padding: 1rem; margin-bottom: 1rem; border-radius: 4px; font-weight: 500;
+}
+.alert-success { background: #e8f0fe; border-left: 4px solid #1a73e8; }
+.alert-error { background: #fce8e6; border-left: 4px solid #ea4335; }
+.table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.table th, .table td { padding: 1rem; text-align: left; border-bottom: 1px solid #f1f3f4; }
+.table th { background: #f8f9fa; font-weight: 500; }
+.footer { text-align: center; padding: 2rem; color: #5f6368; border-top: 1px solid #dadce0; margin-top: 4rem; }
+
+/* Cards */
+.card { background: white; border-radius: 8px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem; }

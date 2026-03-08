@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, session, request, redirect, url_for, render_template, flash
+from flask import Blueprint, session, request, redirect, url_for, render_template, flash
 from models import db, User
 from sqlalchemy import text
 from password_handler import verify_password
@@ -27,13 +27,15 @@ def health():
     return {
         'status': 'healthy' if is_connected else 'unhealthy',
         'database': 'connected' if is_connected else 'disconnected',
-        'authenticated': 'user_id' in session,
-        'username': session.get('username')
     }
 
-@bp.route('/')
-def hello():
-    return jsonify({'message': 'Doc Store API v3'})
+@bp.route('/', methods=['GET', 'POST'])
+@login_required
+def index():
+    username = session.get('username', 'Unknown')
+    user = User.query.filter_by(username=username).first()
+    return render_template('index.html' , current_user=user)
+
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -45,7 +47,7 @@ def login():
         if user and verify_password(password=password, password_hash=user.password):
             session['user_id'] = user.id
             session['username'] = user.username
-            return redirect(url_for('main.protected'))
+            return redirect(url_for('main.index'))
         else:
             flash('Invalid username or password')
     
@@ -55,14 +57,4 @@ def login():
 def logout():
     session.clear()
     flash('Logged out successfully')
-    return redirect(url_for('main.hello'))
-
-@bp.route('/protected')
-@login_required
-def protected():
-    username = session.get('username', 'Unknown')
-    user = User.query.filter_by(username=username).first()
-    return jsonify({
-        'message': f'Hello {user.username}!', 
-        'roles': [r.name for r in user.roles]
-    })
+    return redirect(url_for('main.index'))

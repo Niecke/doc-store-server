@@ -4,7 +4,7 @@ import logging
 import sys
 from config import (
     MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_PORT, MYSQL_DB,
-    SECRET_KEY, SQLALCHEMY_TRACK_MODIFICATIONS, SQLALCHEMY_ENGINE_OPTIONS
+    SECRET_KEY, SQLALCHEMY_TRACK_MODIFICATIONS, SQLALCHEMY_ENGINE_OPTIONS, DEBUG
 )
 
 migrate = Migrate()
@@ -12,6 +12,11 @@ migrate = Migrate()
 def create_app():
     app = Flask(__name__)
     
+    if DEBUG:
+        app.config['DEBUG'] = True  # Auto-reloads templates!
+        app.jinja_env.auto_reload = True
+        app.jinja_env.cache_size = 0
+
     # Config
     app.config['SECRET_KEY'] = SECRET_KEY
     app.config['SQLALCHEMY_DATABASE_URI'] = (

@@ -27,7 +27,7 @@
     </form>
     
     {% if session.user_id %}
-        <form method="POST" action="{{ url_for('logout') }}">
+        <form method="POST" action="{{ url_for('main.logout') }}">
             <button class="logout" type="submit">Logout</button>
         </form>
     {% endif %}

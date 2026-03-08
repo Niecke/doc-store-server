@@ -3,6 +3,8 @@ Environment configuration - loaded once, used everywhere
 """
 import os
 
+DEBUG = bool(os.getenv('DEBUG', True))
+
 # Load and validate Argon2 parameters
 PASSWORD_HASHER_TIME_COST = int(os.getenv('PASSWORD_HASHER_TIME_COST', '2'))
 PASSWORD_HASHER_MEMORY_COST = int(os.getenv('PASSWORD_HASHER_MEMORY_COST', '65536'))

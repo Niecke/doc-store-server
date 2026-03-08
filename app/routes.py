@@ -3,7 +3,6 @@ from models import db, User
 from sqlalchemy import text
 from password_handler import verify_password
 from security import login_required
-from current_user import current_user
 
 bp = Blueprint('main', __name__)
 
@@ -25,7 +24,7 @@ def health():
 @bp.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
-    return render_template('index.html' , current_user=current_user)
+    return render_template('index.html')
 
 
 @bp.route('/login', methods=['GET', 'POST'])

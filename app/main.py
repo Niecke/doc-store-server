@@ -42,7 +42,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     
-    # Current user helper (in create_app())
+    # add current_user to each request 
     @app.before_request
     def load_current_user():
         user_id = session.get('user_id')
@@ -51,11 +51,16 @@ def create_app():
         else:
             current_user.set_user(None)
 
+    # add current_user to jinja templates
+    @app.context_processor
+    def inject_current_user():
+        return dict(current_user=current_user)
+
+    # add require_role function to jinja tempaltes
     @app.context_processor
     def utility_functions():
         def require_role(role_name):
             return current_user.has_role(role_name)
-        
         return dict(require_role=require_role)
 
     # Register blueprints/routes

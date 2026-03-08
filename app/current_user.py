@@ -25,5 +25,9 @@ class CurrentUser:
     @property
     def roles(self):
         return self._user.roles if self._user else []
+    
+    @property
+    def email(self):
+        return self._user.email if self._user else ""
 
 current_user = CurrentUser()

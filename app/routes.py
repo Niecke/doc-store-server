@@ -2,17 +2,10 @@ from flask import Blueprint, session, request, redirect, url_for, render_templat
 from models import db, User
 from sqlalchemy import text
 from password_handler import verify_password
-from functools import wraps
+from security import login_required
+from current_user import current_user
 
 bp = Blueprint('main', __name__)
-
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            return redirect(url_for('main.login'))
-        return f(*args, **kwargs)
-    return decorated_function
 
 def ping_db():
     try:
@@ -32,9 +25,7 @@ def health():
 @bp.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
-    username = session.get('username', 'Unknown')
-    user = User.query.filter_by(username=username).first()
-    return render_template('index.html' , current_user=user)
+    return render_template('index.html' , current_user=current_user)
 
 
 @bp.route('/login', methods=['GET', 'POST'])

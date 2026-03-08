@@ -57,6 +57,7 @@ def upgrade():
         username="admin",
         password=hash_password('admin123'),
         roles=[admin_role],
+        active=True,
     )
     db.session.add(admin_user)
     db.session.commit()

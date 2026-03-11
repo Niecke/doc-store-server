@@ -52,7 +52,7 @@ def user_edit(id):
 
 
 
-@admin.route('/admin/user_delete/<int:id>', methods=['GET'])
+@admin.route('/admin/user_delete/<int:id>', methods=['POST'])
 @login_required
 @require_role('admin')
 def user_delete(id):

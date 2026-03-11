@@ -18,7 +18,8 @@ echo "Migrations complete!"
 # Start Gunicorn
 echo "Starting Gunicorn..."
 
-GUNICORN_ARGS="--bind 0.0.0.0:8080 --workers 1 --log-level info"
+GUNICORN_WORKERS="${GUNICORN_WORKERS:-$(( 2 * $(nproc) + 1 ))}"
+GUNICORN_ARGS="--bind 0.0.0.0:8080 --workers $GUNICORN_WORKERS --log-level info"
 
 if [ "${DEBUG}" = "true" ]; then
   GUNICORN_ARGS="$GUNICORN_ARGS --reload --reload-engine poll"

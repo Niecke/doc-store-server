@@ -2,11 +2,12 @@ services:
   mysql:
     image: docker.io/library/mysql:8.3
     container_name: docstore-mysql
+    env_file: .env
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword123
-      MYSQL_DATABASE: docstore
-      MYSQL_USER: docstore
-      MYSQL_PASSWORD: your_secure_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -21,19 +22,12 @@ services:
   app:
     build: .
     container_name: docstore-app
+    env_file: .env
     ports:
       - "8080:8080"
     volumes:
       - ./app:/app
       - ./requirements.txt:/requirements.txt
-    environment:
-      MYSQL_HOST: mysql
-      MYSQL_PASSWORD: your_secure_password
-      MYSQL_PORT: 3306
-      SECRET_KEY: your-super-secret-key-change-me
-      DEBUG: True
-      INIT_ADMIN_PASSWORD: admin123
-      GUNICORN_WORKERS: 2
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
       interval: 15s

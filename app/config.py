@@ -2,8 +2,17 @@
 Environment configuration - loaded once, used everywhere
 """
 import os
+import secrets, string
 
 DEBUG = os.getenv("DEBUG", "false").lower() in ("1", "true", "yes")
+INIT_ADMIN_PASSWORD = str(os.getenv('INIT_ADMIN_PASSWORD', ""))
+INIT_ADMIN_LENGTH = int(os.getenv('INIT_ADMIN_LENGTH', 16))
+INIT_ADMIN_SPECIAL_CHARS = str(os.getenv('INIT_ADMIN_LENGTH', '!@#\$%&*'))
+
+if not INIT_ADMIN_PASSWORD:
+    chars = string.ascii_letters + string.digits + INIT_ADMIN_SPECIAL_CHARS
+    INIT_ADMIN_PASSWORD = ''.join(secrets.choice(chars) for _ in range(INIT_ADMIN_LENGTH))
+
 
 # Load and validate Argon2 parameters
 PASSWORD_HASHER_TIME_COST = int(os.getenv('PASSWORD_HASHER_TIME_COST', '2'))

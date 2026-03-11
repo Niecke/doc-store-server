@@ -10,17 +10,19 @@ body {
     padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;
 }
 .nav-brand { font-size: 1.5rem; font-weight: 500; color: #1a73e8; }
+.nav-menu { display: flex; align-items: center; }
 .nav-menu a {
     margin-left: 2rem; color: #5f6368; text-decoration: none; font-weight: 500;
 }
 .nav-menu a:hover { color: #1a73e8; }
+.nav-menu form { margin-left: 2rem; display:inline;}
 .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
 h1, h2 { color: #202124; }
 button, .btn {
-    background: #1a73e8; color: white; border: none; padding: 0.75rem 1.5rem;
-    border-radius: 4px; font-weight: 500; cursor: pointer; transition: background 0.2s;
+    background: #1a73e8; color: white; border: 1px solid transparent; padding: 0.75rem 1.5rem;
+    border-radius: 4px; font-weight: 500; cursor: pointer; transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
-.btn:hover { background: #1557b0; }
+button:hover, .btn:hover { background: white; color: #1a73e8; border-color: #1a73e8; }
 .btn-secondary { background: #f8f9fa; color: #3c4043; border: 1px solid #dadce0; }
 input, textarea, select {
     width: 100%; padding: 0.75rem; border: 1px solid #dadce0; border-radius: 4px;

@@ -5,7 +5,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword123
       MYSQL_DATABASE: docstore
-      MYSQL_USER: user
+      MYSQL_USER: udocstore
       MYSQL_PASSWORD: your_secure_password
     ports:
       - "3306:3306"
@@ -28,11 +28,10 @@ services:
       - ./requirements.txt:/requirements.txt
     environment:
       MYSQL_HOST: mysql
-      MYSQL_USER: user
       MYSQL_PASSWORD: your_secure_password
-      MYSQL_DB: docstore
       MYSQL_PORT: 3306
       SECRET_KEY: your-super-secret-key-change-me
+      DEBUG: True
     restart: unless-stopped
     #command: ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--reload", "--reload-engine", "poll", "app:app"]
 

@@ -16,12 +16,12 @@ flask db upgrade
 echo "Migrations complete!"
 
 # Start Gunicorn
-# TODO remove reload for prod run
 echo "Starting Gunicorn..."
-exec gunicorn \
-  --bind 0.0.0.0:8080 \
-  --workers 1 \
-  --reload \
-  --reload-engine poll \
-  --log-level info \
-  "main:create_app()"
+
+GUNICORN_ARGS="--bind 0.0.0.0:8080 --workers 1 --log-level info"
+
+if [ "${DEBUG}" = "true" ]; then
+  GUNICORN_ARGS="$GUNICORN_ARGS --reload --reload-engine poll"
+fi
+
+exec gunicorn $GUNICORN_ARGS "main:create_app()"

@@ -2,7 +2,9 @@
 
 ## TODO
 
-- [ ] use seperate credentials for deploy and terraform
+- [ ] add flask-session for server side sessions
+- [ ] add CSRF Token to all forms
+- [ ] add multistage build for docker
 
 ## Local development
 

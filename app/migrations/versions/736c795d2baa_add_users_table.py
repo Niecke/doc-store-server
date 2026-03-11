@@ -40,7 +40,9 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('role_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['role_id'], ['role.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.Index('ix_roles_users_user_id', 'user_id'),
+    sa.Index('ix_roles_users_role_id', 'role_id')
     )
 
     # CREATE ADMIN

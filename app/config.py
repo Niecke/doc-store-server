@@ -7,7 +7,7 @@ import secrets, string
 DEBUG = os.getenv("DEBUG", "false").lower() in ("1", "true", "yes")
 INIT_ADMIN_PASSWORD = str(os.getenv('INIT_ADMIN_PASSWORD', ""))
 INIT_ADMIN_LENGTH = int(os.getenv('INIT_ADMIN_LENGTH', 16))
-INIT_ADMIN_SPECIAL_CHARS = str(os.getenv('INIT_ADMIN_SPECIAL_CHARS', '!@#\$%&*'))
+INIT_ADMIN_SPECIAL_CHARS = str(os.getenv('INIT_ADMIN_SPECIAL_CHARS', r'!@#\$%&*'))
 
 if not INIT_ADMIN_PASSWORD:
     chars = string.ascii_letters + string.digits + INIT_ADMIN_SPECIAL_CHARS

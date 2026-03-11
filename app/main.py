@@ -32,9 +32,9 @@ else:
 
 migrate = Migrate()
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__)
-    
+
     if DEBUG:
         app.config['DEBUG'] = True  # Auto-reloads templates!
         app.jinja_env.auto_reload = True
@@ -48,6 +48,10 @@ def create_app():
     )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = SQLALCHEMY_ENGINE_OPTIONS
+
+    # Allow tests to override any config value before extensions are initialised
+    if test_config is not None:
+        app.config.update(test_config)
     
     # Logging
     app.logger.handlers.clear()

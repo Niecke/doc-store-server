@@ -3,12 +3,12 @@
 ## TODO
 
 - [ ] add logging with json as the default
-- [ ] add flask-session for server side sessions
-- [ ] add CSRF Token to all forms
-- [ ] add unittests
+- [x] add flask-session for server side sessions
+- [x] add CSRF Token to all forms
+- [x] add unittests
 - [ ] add multistage build for docker
 - [ ] fix github pipeline
-- [ ] change layout of login to fit the rest of the app
+- [x] change layout of login to fit the rest of the app
 
 ## Local development
 
@@ -18,6 +18,24 @@ podman run -it --rm --name doc-store -v ./app:/app:z -p 8080:8080 doc-store
 
 podman-compose up -d --build
 
+### Testing
+
+```
+pip install -r requirements.txt -r requirements-test.txt
+```
+
+```
+MYSQL_PASSWORD=test SECRET_KEY=test-secret-key-at-least-32-chars-long! \
+DEBUG=true PASSWORD_HASHER_TIME_COST=1 PASSWORD_HASHER_MEMORY_COST=8 PASSWORD_HASHER_PARALLELISM=1 \
+python -m pytest
+```
+
+With coverage
+```
+MYSQL_PASSWORD=test SECRET_KEY=test-secret-key-at-least-32-chars-long! \
+DEBUG=true PASSWORD_HASHER_TIME_COST=1 PASSWORD_HASHER_MEMORY_COST=8 PASSWORD_HASHER_PARALLELISM=1 \
+python -m pytest --cov=app --cov-report=term-missing --cov-report=html
+```
 
 ## Database setup
 

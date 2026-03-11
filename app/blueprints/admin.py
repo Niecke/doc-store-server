@@ -24,7 +24,7 @@ def user_create():
         
         # Check if user exists
         if db.session.execute(select(User).where(User.email == email)).scalar_one_or_none():
-            flash('EMail already exists!', 'error')
+            flash('Email already exists!', 'error')
             return render_template('admin/user_create.html')
         
         user = User(

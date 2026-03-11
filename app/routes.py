@@ -27,7 +27,6 @@ def health():
 def index():
     return render_template('index.html')
 
-# TODO: add some rate limiting to block brute force
 @bp.route('/login', methods=['GET', 'POST'])
 @limiter.limit("2 per second")
 def login():

@@ -4,14 +4,22 @@ import logging
 import sys
 from config import (
     MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_PORT, MYSQL_DB,
-    SECRET_KEY, SQLALCHEMY_TRACK_MODIFICATIONS, SQLALCHEMY_ENGINE_OPTIONS, DEBUG
+    SECRET_KEY, SQLALCHEMY_TRACK_MODIFICATIONS, SQLALCHEMY_ENGINE_OPTIONS, DEBUG, REDIS_URL
 )
 from models import User
 from current_user import current_user
 from flask_talisman import Talisman
 from flask_wtf.csrf import CSRFProtect
+from flask_session import Session
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 csrf = CSRFProtect()
+server_session = Session()
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["2 per minute", "1 per second"]
+)
 
 migrate = Migrate()
 
@@ -41,6 +49,32 @@ def create_app():
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.INFO)
     
+    # Server-side sessions (Redis if available, filesystem fallback)
+    if REDIS_URL:
+        import redis
+        app.config['SESSION_TYPE'] = 'redis'
+        app.config['SESSION_REDIS'] = redis.from_url(REDIS_URL)
+        app.logger.info('Sessions: Redis (%s)', REDIS_URL)
+    else:
+        app.config['SESSION_TYPE'] = 'filesystem'
+        app.config['SESSION_FILE_DIR'] = '/tmp/flask_sessions'
+        app.logger.info('Sessions: filesystem (no REDIS_URL set)')
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    server_session.init_app(app)
+
+    # enable caching
+    if REDIS_URL:
+        limiter.init_app(
+            app,
+            storage_uri="redis://localhost:6379",
+        )
+    else:
+        limiter.init_app(
+            app,
+            storage_uri="memory://",
+        )
+
     # Init extensions
     from models import db
     db.init_app(app)

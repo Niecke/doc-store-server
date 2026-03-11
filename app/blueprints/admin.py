@@ -31,7 +31,11 @@ def user_create():
             email=email,
             active=active,
         )
-        user.set_password(password)
+        try:
+            user.set_password(password)
+        except ValueError as ex:
+            flash(ex, 'error')
+            return render_template('admin/user_create.html', email=email)
         
         db.session.add(user)
         db.session.commit()

@@ -13,6 +13,7 @@ if not INIT_ADMIN_PASSWORD:
     chars = string.ascii_letters + string.digits + INIT_ADMIN_SPECIAL_CHARS
     INIT_ADMIN_PASSWORD = ''.join(secrets.choice(chars) for _ in range(INIT_ADMIN_LENGTH))
 
+MIN_PASSWORD_LENGTH = int(os.getenv('MIN_PASSWORD_LENGTH', 8))
 
 # Load and validate Argon2 parameters
 PASSWORD_HASHER_TIME_COST = int(os.getenv('PASSWORD_HASHER_TIME_COST', '2'))

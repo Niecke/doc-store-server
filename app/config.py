@@ -38,6 +38,9 @@ SQLALCHEMY_ENGINE_OPTIONS["max_overflow"] = int(os.getenv('SQLALCHEMY_ENGINE_OPT
 # App security
 SECRET_KEY = os.getenv('SECRET_KEY')
 
+# Redis (optional — enables Redis-backed sessions when set, falls back to filesystem)
+REDIS_URL = os.getenv('REDIS_URL', None)
+
 # FAIL-FAST: Check required vars
 REQUIRED_VARS = ['MYSQL_PASSWORD', 'SECRET_KEY']
 missing = [var for var in REQUIRED_VARS if not os.getenv(var)]

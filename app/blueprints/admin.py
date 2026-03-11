@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app
 from sqlalchemy import select
 from models import db, User
 from security import login_required, require_role
@@ -39,7 +39,8 @@ def user_create():
         
         db.session.add(user)
         db.session.commit()
-        
+
+        current_app.logger.info('User created: %s', email, extra={'log_type': 'audit'})
         flash(f'User "{email}" created successfully!', 'success')
         return redirect(url_for('admin.dashboard'))
     
@@ -71,6 +72,7 @@ def user_edit(id):
         user.active = active
         db.session.commit()
 
+        current_app.logger.info('User updated: %s', user.email, extra={'log_type': 'audit'})
         flash(f'User "{user.email}" updated successfully!', 'success')
         return redirect(url_for('admin.dashboard'))
 
@@ -95,5 +97,6 @@ def user_delete(id):
     db.session.delete(user)
     db.session.commit()
 
+    current_app.logger.info('User deleted: %s', user.email, extra={'log_type': 'audit'})
     flash(f'User "{user.email}" deleted!', 'success')
     return redirect(url_for('admin.dashboard'))

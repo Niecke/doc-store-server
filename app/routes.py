@@ -39,8 +39,10 @@ def login():
             session.clear()
             session['user_id'] = user.id
             session['email'] = user.email
+            current_app.logger.info('Login successful: %s', email, extra={'log_type': 'audit'})
             return redirect(url_for('main.index'))
         else:
+            current_app.logger.warning('Login failed: %s', email or '<no email>', extra={'log_type': 'audit'})
             flash('Invalid email or password')
     
     return render_template('login.html')

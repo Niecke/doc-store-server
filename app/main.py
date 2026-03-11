@@ -1,7 +1,6 @@
 from flask import Flask, session
 from flask_migrate import Migrate
-import logging
-import sys
+from log import setup_app_logger
 from config import (
     MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_PORT, MYSQL_DB,
     SECRET_KEY, SQLALCHEMY_TRACK_MODIFICATIONS, SQLALCHEMY_ENGINE_OPTIONS, DEBUG, REDIS_URL,
@@ -38,7 +37,7 @@ def create_app(test_config=None):
     if DEBUG:
         app.config['DEBUG'] = True  # Auto-reloads templates!
         app.jinja_env.auto_reload = True
-        app.jinja_env.cache_size = 0
+        app.jinja_env.cache = None
 
     # Config
     app.config['SECRET_KEY'] = SECRET_KEY
@@ -54,24 +53,18 @@ def create_app(test_config=None):
         app.config.update(test_config)
     
     # Logging
-    app.logger.handlers.clear()
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    app.logger.addHandler(handler)
-    app.logger.setLevel(logging.INFO)
+    setup_app_logger(app)
     
     # Server-side sessions (Redis if available, filesystem fallback)
     if REDIS_URL:
         import redis
         app.config['SESSION_TYPE'] = 'redis'
         app.config['SESSION_REDIS'] = redis.from_url(REDIS_URL)
-        app.logger.info('Sessions: Redis (%s)', REDIS_URL)
+        app.logger.info(f'Sessions: Redis ({REDIS_URL})', extra={'log_type': 'startup'})
     else:
         app.config['SESSION_TYPE'] = 'filesystem'
         app.config['SESSION_FILE_DIR'] = '/tmp/flask_sessions'
-        app.logger.info('Sessions: filesystem (no REDIS_URL set)')
+        app.logger.info('Sessions: filesystem (no REDIS_URL set)', extra={'log_type': 'startup'})
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     server_session.init_app(app)

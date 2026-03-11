@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
 
   redis:
-    image: docker.io/library/redis:7-alpine
+    image: docker.io/library/redis:8-alpine
     container_name: docstore-redis
     restart: unless-stopped
     healthcheck:

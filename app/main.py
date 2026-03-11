@@ -19,13 +19,13 @@ server_session = Session()
 if REDIS_URL:
     limiter = Limiter(
         key_func=get_remote_address,
-        default_limits=["3 per second"],
+        default_limits=["10 per second"],
         storage_uri=REDIS_URL
     )
 else:
     limiter = Limiter(
         key_func=get_remote_address,
-        default_limits=["3 per second"],
+        default_limits=["10 per second"],
         storage_uri="memory://"
     )
 
@@ -121,5 +121,11 @@ def create_app(test_config=None):
 
     from blueprints.admin import admin
     app.register_blueprint(admin)
-    
+
+    from blueprints.documents import documents
+    app.register_blueprint(documents)
+
+    # Limit upload request size to 64 MB
+    app.config['MAX_CONTENT_LENGTH'] = 64 * 1024 * 1024
+
     return app

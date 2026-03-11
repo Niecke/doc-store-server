@@ -4,13 +4,15 @@ The entrypoint.sh is deprecated since the pyhton distroless container image does
 
 ## TODO
 
-- [ ] add logging with json as the default
+- [x] add logging with json as the default
 - [x] add flask-session for server side sessions
 - [x] add CSRF Token to all forms
 - [x] add unittests
 - [x] add multistage build for docker
 - [ ] fix github pipeline
 - [x] change layout of login to fit the rest of the app
+- [ ] adding versioning
+- [ ] adding S3 compatible storage as backend
 
 ## Local development
 

@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
+from sqlalchemy import select
 from models import db, User
 from security import login_required, require_role
 
@@ -8,7 +9,7 @@ admin = Blueprint('admin', __name__)
 @login_required
 @require_role('admin')
 def dashboard():
-    users = User.query.all()
+    users = db.session.execute(select(User)).scalars().all()
     return render_template('admin/dashboard.html', users=users)
 
 
@@ -22,7 +23,7 @@ def user_create():
         active = 'active' in request.form
         
         # Check if user exists
-        if User.query.filter((User.email == email)).first():
+        if db.session.execute(select(User).where(User.email == email)).scalar_one_or_none():
             flash('EMail or email already exists!', 'error')
             return render_template('admin/user_create.html')
         
@@ -55,7 +56,7 @@ def user_edit(id):
 @login_required
 @require_role('admin')
 def user_delete(id):
-    user = User.query.get(id)
+    user = db.session.get(User, id)
 
     if not user:
         flash(f'User ID "{id}" unkown!', 'error')

@@ -4,9 +4,9 @@ from config import PASSWORD_HASHER_TIME_COST, PASSWORD_HASHER_MEMORY_COST, PASSW
 
 # Global hasher instance
 password_hasher = PasswordHasher(
-    time_cost=PASSWORD_HASHER_TIME_COST,       # iterations (balance between security/speed)
+    time_cost=PASSWORD_HASHER_TIME_COST,     # iterations (balance between security/speed)
     memory_cost=PASSWORD_HASHER_MEMORY_COST, # memory usage (makes GPU attacks expensive)
-    parallelism=PASSWORD_HASHER_PARALLELISM      # CPU threads
+    parallelism=PASSWORD_HASHER_PARALLELISM  # CPU threads
 )
 
 # Hash password
@@ -17,9 +17,6 @@ def hash_password(password):
 def verify_password(password, password_hash):
     try:
         password_hasher.verify(password_hash, password)
-        # Rehash if parameters changed (future-proof)
-        if password_hasher.check_needs_rehash(password_hash):
-            return hash_password(password)
         return True
     except VerifyMismatchError:
         return False

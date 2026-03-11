@@ -8,6 +8,7 @@ from config import (
 )
 from models import User
 from current_user import current_user
+from flask_talisman import Talisman
 
 migrate = Migrate()
 
@@ -41,13 +42,16 @@ def create_app():
     from models import db
     db.init_app(app)
     migrate.init_app(app, db)
+
+    # Security extensions
+    Talisman(app)
     
     # add current_user to each request 
     @app.before_request
     def load_current_user():
         user_id = session.get('user_id')
         if user_id:
-            current_user.set_user(User.query.get(user_id))
+            current_user.set_user(db.session.get(User, user_id))
         else:
             current_user.set_user(None)
 

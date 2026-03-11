@@ -3,7 +3,7 @@ Environment configuration - loaded once, used everywhere
 """
 import os
 
-DEBUG = bool(os.getenv('DEBUG', True))
+DEBUG = os.getenv("DEBUG", "false").lower() in ("1", "true", "yes")
 
 # Load and validate Argon2 parameters
 PASSWORD_HASHER_TIME_COST = int(os.getenv('PASSWORD_HASHER_TIME_COST', '2'))
@@ -17,7 +17,7 @@ MYSQL_HOST     = str(os.getenv('MYSQL_HOST', 'docstore'))
 MYSQL_PORT     = int(os.getenv('MYSQL_PORT', 3306))
 MYSQL_DB       = str(os.getenv('MYSQL_DB', 'docstore'))
 
-SQLALCHEMY_TRACK_MODIFICATIONS = bool(os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS', True))
+SQLALCHEMY_TRACK_MODIFICATIONS = os.getenv("SQLALCHEMY_TRACK_MODIFICATIONS", "false").lower() in ("1", "true", "yes")
 
 SQLALCHEMY_ENGINE_OPTIONS = dict()
 SQLALCHEMY_ENGINE_OPTIONS["pool_pre_ping"] = bool(os.getenv('SQLALCHEMY_ENGINE_OPTIONS_POOL_PRE_PING', True))

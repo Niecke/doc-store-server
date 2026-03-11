@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-from password_handler import hash_password
+from password_handler import hash_password, password_hasher
+from argon2.exceptions import VerifyMismatchError
 
 db = SQLAlchemy()
 
@@ -26,4 +27,14 @@ class User(db.Model):
     
     def set_password(self, password):
         # TODO add checks for secure passwords
-        self.password = hash_password(password),
+        self.password = hash_password(password)
+
+    def verify_password(self, password):
+        try:
+            password_hasher.verify(self.password, password)
+        except VerifyMismatchError:
+            return False
+        if password_hasher.check_needs_rehash(self.password):
+            self.set_password(password)
+            db.session.commit()
+        return True

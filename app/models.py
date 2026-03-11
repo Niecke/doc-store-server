@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from password_handler import hash_password, password_hasher
 from argon2.exceptions import VerifyMismatchError
+from config import MIN_PASSWORD_LENGTH
 
 db = SQLAlchemy()
 
@@ -26,7 +27,8 @@ class User(db.Model):
         return self.active
     
     def set_password(self, password):
-        # TODO add checks for secure passwords
+        if len(password) < MIN_PASSWORD_LENGTH:
+            raise ValueError(f"Password needs to be longer than {MIN_PASSWORD_LENGTH}")
         self.password = hash_password(password)
 
     def verify_password(self, password):

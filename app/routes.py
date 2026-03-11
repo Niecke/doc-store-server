@@ -2,6 +2,7 @@ from flask import Blueprint, session, request, redirect, url_for, render_templat
 from models import db, User
 from sqlalchemy import text, select
 from security import login_required
+from main import limiter
 
 bp = Blueprint('main', __name__)
 
@@ -28,6 +29,7 @@ def index():
 
 # TODO: add some rate limiting to block brute force
 @bp.route('/login', methods=['GET', 'POST'])
+@limiter.limit("2 per second")
 def login():
     if request.method == 'POST':
         email = request.form.get('email')

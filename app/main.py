@@ -4,7 +4,8 @@ import logging
 import sys
 from config import (
     MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_PORT, MYSQL_DB,
-    SECRET_KEY, SQLALCHEMY_TRACK_MODIFICATIONS, SQLALCHEMY_ENGINE_OPTIONS, DEBUG, REDIS_URL
+    SECRET_KEY, SQLALCHEMY_TRACK_MODIFICATIONS, SQLALCHEMY_ENGINE_OPTIONS, DEBUG, REDIS_URL,
+    MIN_PASSWORD_LENGTH
 )
 from models import User
 from current_user import current_user
@@ -16,10 +17,18 @@ from flask_limiter.util import get_remote_address
 
 csrf = CSRFProtect()
 server_session = Session()
-limiter = Limiter(
-    key_func=get_remote_address,
-    default_limits=["2 per minute", "1 per second"]
-)
+if REDIS_URL:
+    limiter = Limiter(
+        key_func=get_remote_address,
+        default_limits=["3 per second"],
+        storage_uri=REDIS_URL
+    )
+else:
+    limiter = Limiter(
+        key_func=get_remote_address,
+        default_limits=["3 per second"],
+        storage_uri="memory://"
+    )
 
 migrate = Migrate()
 
@@ -64,16 +73,7 @@ def create_app():
     server_session.init_app(app)
 
     # enable caching
-    if REDIS_URL:
-        limiter.init_app(
-            app,
-            storage_uri="redis://localhost:6379",
-        )
-    else:
-        limiter.init_app(
-            app,
-            storage_uri="memory://",
-        )
+    limiter.init_app(app)
 
     # Init extensions
     from models import db
@@ -113,6 +113,10 @@ def create_app():
         def require_role(role_name):
             return current_user.has_role(role_name)
         return dict(require_role=require_role)
+
+    @app.context_processor
+    def inject_config():
+        return dict(MIN_PASSWORD_LENGTH=MIN_PASSWORD_LENGTH)
 
     # Register blueprints/routes
     from routes import bp as main_bp

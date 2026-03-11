@@ -24,7 +24,7 @@ def user_create():
         
         # Check if user exists
         if db.session.execute(select(User).where(User.email == email)).scalar_one_or_none():
-            flash('EMail or email already exists!', 'error')
+            flash('EMail already exists!', 'error')
             return render_template('admin/user_create.html')
         
         user = User(
@@ -59,7 +59,7 @@ def user_delete(id):
     user = db.session.get(User, id)
 
     if not user:
-        flash(f'User ID "{id}" unkown!', 'error')
+        flash(f'User ID "{id}" unknown!', 'error')
         return redirect(url_for('admin.dashboard'))
 
     if user.email == "admin":

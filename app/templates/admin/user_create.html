@@ -5,6 +5,7 @@
     <h1>Create New User</h1>
     
     <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="form-group">
             <label for="email">E-Mail *</label>
             <input type="text" id="email" name="email" 

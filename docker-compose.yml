@@ -33,6 +33,7 @@ services:
       SECRET_KEY: your-super-secret-key-change-me
       DEBUG: True
       INIT_ADMIN_PASSWORD: admin123
+      GUNICORN_WORKERS: 2
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
       interval: 15s

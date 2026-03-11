@@ -1,6 +1,7 @@
 *.odt#
 *.odt
 generate_report.py
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

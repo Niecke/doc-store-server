@@ -21,6 +21,8 @@ podman-compose up -d --build
 ### Testing
 
 ```
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt -r requirements-test.txt
 ```
 

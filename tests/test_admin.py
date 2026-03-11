@@ -214,7 +214,7 @@ class TestAdminUserDelete:
 
 
 # ---------------------------------------------------------------------------
-# User edit (not implemented)
+# User edit
 # ---------------------------------------------------------------------------
 
 class TestAdminUserEdit:
@@ -223,18 +223,123 @@ class TestAdminUserEdit:
         assert response.status_code == 302
         assert "/login" in response.location
 
-    def test_user_edit_redirects_with_not_implemented(self, client, admin_user):
-        login_admin(client, admin_user)
+    def test_user_edit_requires_admin_role(self, client, regular_user):
+        login_regular(client, regular_user)
         response = client.get(
-            f"/admin/user_edit/{admin_user.id}", follow_redirects=True
+            f"/admin/user_edit/{regular_user.id}", follow_redirects=True
         )
-        html = response.data.decode()
-        assert "Not implemented yet" in html
+        html = html_text(response)
+        assert 'Role "admin" required!' in html
 
-    def test_user_edit_post_also_redirects(self, client, admin_user):
+    def test_user_edit_get_shows_form(self, client, admin_user, regular_user):
+        login_admin(client, admin_user)
+        response = client.get(f"/admin/user_edit/{regular_user.id}")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "password" in html.lower()
+        assert "active" in html.lower()
+
+    def test_user_edit_get_shows_email_as_readonly(self, client, admin_user, regular_user):
+        login_admin(client, admin_user)
+        response = client.get(f"/admin/user_edit/{regular_user.id}")
+        html = response.data.decode()
+        assert "user@test.com" in html
+        # email field must be disabled, not a writable input
+        assert 'disabled' in html
+
+    def test_user_edit_unknown_id_redirects_with_error(self, client, admin_user):
+        login_admin(client, admin_user)
+        response = client.get("/admin/user_edit/99999", follow_redirects=True)
+        html = html_text(response)
+        assert "unknown" in html
+
+    def test_user_edit_changes_password(self, client, admin_user, regular_user):
+        login_admin(client, admin_user)
+        client.post(
+            f"/admin/user_edit/{regular_user.id}",
+            data={"password": "NewPassword1!", "active": "on"},
+            follow_redirects=True,
+        )
+        db.session.refresh(regular_user)
+        assert regular_user.verify_password("NewPassword1!")
+
+    def test_user_edit_old_password_no_longer_works(self, client, admin_user, regular_user):
+        login_admin(client, admin_user)
+        client.post(
+            f"/admin/user_edit/{regular_user.id}",
+            data={"password": "NewPassword1!", "active": "on"},
+            follow_redirects=True,
+        )
+        db.session.refresh(regular_user)
+        assert not regular_user.verify_password("UserPass123!")
+
+    def test_user_edit_blank_password_keeps_existing(self, client, admin_user, regular_user):
+        login_admin(client, admin_user)
+        client.post(
+            f"/admin/user_edit/{regular_user.id}",
+            data={"password": "", "active": "on"},
+            follow_redirects=True,
+        )
+        db.session.refresh(regular_user)
+        assert regular_user.verify_password("UserPass123!")
+
+    def test_user_edit_deactivates_user(self, client, admin_user, regular_user):
+        login_admin(client, admin_user)
+        client.post(
+            f"/admin/user_edit/{regular_user.id}",
+            data={"password": ""},  # 'active' absent → False
+            follow_redirects=True,
+        )
+        db.session.refresh(regular_user)
+        assert regular_user.active is False
+
+    def test_user_edit_activates_user(self, client, admin_user, inactive_user):
+        login_admin(client, admin_user)
+        client.post(
+            f"/admin/user_edit/{inactive_user.id}",
+            data={"password": "", "active": "on"},
+            follow_redirects=True,
+        )
+        db.session.refresh(inactive_user)
+        assert inactive_user.active is True
+
+    def test_user_edit_does_not_change_email(self, client, admin_user, regular_user):
+        login_admin(client, admin_user)
+        client.post(
+            f"/admin/user_edit/{regular_user.id}",
+            data={"email": "hacked@evil.com", "password": "", "active": "on"},
+            follow_redirects=True,
+        )
+        db.session.refresh(regular_user)
+        assert regular_user.email == "user@test.com"
+
+    def test_user_edit_short_password_shows_error(self, client, admin_user, regular_user):
         login_admin(client, admin_user)
         response = client.post(
-            f"/admin/user_edit/{admin_user.id}", follow_redirects=True
+            f"/admin/user_edit/{regular_user.id}",
+            data={"password": "short", "active": "on"},
+            follow_redirects=True,
         )
+        assert response.status_code == 200
         html = response.data.decode()
-        assert "Not implemented yet" in html
+        assert "Password needs to be longer than" in html
+
+    def test_user_edit_short_password_does_not_change_password(self, client, admin_user, regular_user):
+        login_admin(client, admin_user)
+        client.post(
+            f"/admin/user_edit/{regular_user.id}",
+            data={"password": "short", "active": "on"},
+            follow_redirects=True,
+        )
+        db.session.refresh(regular_user)
+        assert regular_user.verify_password("UserPass123!")
+
+    def test_user_edit_success_shows_flash(self, client, admin_user, regular_user):
+        login_admin(client, admin_user)
+        response = client.post(
+            f"/admin/user_edit/{regular_user.id}",
+            data={"password": "", "active": "on"},
+            follow_redirects=True,
+        )
+        html = html_text(response)
+        assert 'updated successfully!' in html

@@ -44,17 +44,18 @@ class TestLoginPost:
         assert "Invalid email or password" in html
 
     def test_inactive_user_cannot_login(self, client, inactive_user):
-        # An inactive user's verify_password returns True, but is_authenticated
-        # returns False – so the login check (user.verify_password) succeeds
-        # but session should not be set if the app validates active status.
-        # Current implementation: login only checks verify_password, not active.
-        # This test documents the current behaviour and should be updated if the
-        # login view is hardened to reject inactive users.
         response = do_login(client, "inactive@test.com", "InactivePass123!")
-        # Currently the app redirects (login succeeds) for inactive users
-        # because the route only calls verify_password, not is_authenticated.
-        # Document the status quo:
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Invalid email or password" in html
+
+    def test_inactive_user_has_no_session_after_login_attempt(self, client, inactive_user):
+        client.post(
+            "/login",
+            data={"email": "inactive@test.com", "password": "InactivePass123!"},
+        )
+        with client.session_transaction() as sess:
+            assert "user_id" not in sess
 
     def test_empty_email_and_password(self, client):
         response = do_login(client, "", "")

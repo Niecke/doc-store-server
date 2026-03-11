@@ -51,8 +51,30 @@ def user_create():
 @login_required
 @require_role('admin')
 def user_edit(id):
-    flash(f'Not implemented yet', 'error')
-    return redirect(url_for('admin.dashboard'))
+    user = db.session.get(User, id)
+
+    if not user:
+        flash(f'User ID "{id}" unknown!', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    if request.method == 'POST':
+        password = request.form.get('password', '').strip()
+        active = 'active' in request.form
+
+        if password:
+            try:
+                user.set_password(password)
+            except ValueError as ex:
+                flash(ex, 'error')
+                return render_template('admin/user_edit.html', user=user)
+
+        user.active = active
+        db.session.commit()
+
+        flash(f'User "{user.email}" updated successfully!', 'success')
+        return redirect(url_for('admin.dashboard'))
+
+    return render_template('admin/user_edit.html', user=user)
 
 
 

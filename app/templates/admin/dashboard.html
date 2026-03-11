@@ -39,10 +39,12 @@
                             {{ 'Active' if user.active else 'Inactive' }}
                         </span>
                     </td>
-                    <td>
+                    <td class="actions">
                             <a href="{{ url_for('admin.user_edit', id=user.id) }}" class="btn btn-secondary btn-sm">Edit</a>
-                            <a href="{{ url_for('admin.user_delete', id=user.id) }}" class="btn btn-danger btn-sm" 
-                               onclick="return confirm('Delete {{ user.email }}?')">Delete</a>
+                            <form method="POST" action="{{ url_for('admin.user_delete', id=user.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
                     </td>
                 </tr>
                 {% else %}

@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
+from sqlalchemy import select
 from models import db, User
 from security import login_required, require_role
 
@@ -8,7 +9,7 @@ admin = Blueprint('admin', __name__)
 @login_required
 @require_role('admin')
 def dashboard():
-    users = User.query.all()
+    users = db.session.execute(select(User)).scalars().all()
     return render_template('admin/dashboard.html', users=users)
 
 
@@ -22,15 +23,19 @@ def user_create():
         active = 'active' in request.form
         
         # Check if user exists
-        if User.query.filter((User.email == email)).first():
-            flash('EMail or email already exists!', 'error')
+        if db.session.execute(select(User).where(User.email == email)).scalar_one_or_none():
+            flash('Email already exists!', 'error')
             return render_template('admin/user_create.html')
         
         user = User(
             email=email,
             active=active,
         )
-        user.set_password(password)
+        try:
+            user.set_password(password)
+        except ValueError as ex:
+            flash(ex, 'error')
+            return render_template('admin/user_create.html', email=email)
         
         db.session.add(user)
         db.session.commit()
@@ -51,14 +56,14 @@ def user_edit(id):
 
 
 
-@admin.route('/admin/user_delete/<int:id>', methods=['GET'])
+@admin.route('/admin/user_delete/<int:id>', methods=['POST'])
 @login_required
 @require_role('admin')
 def user_delete(id):
-    user = User.query.get(id)
+    user = db.session.get(User, id)
 
     if not user:
-        flash(f'User ID "{id}" unkown!', 'error')
+        flash(f'User ID "{id}" unknown!', 'error')
         return redirect(url_for('admin.dashboard'))
 
     if user.email == "admin":

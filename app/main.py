@@ -4,10 +4,31 @@ import logging
 import sys
 from config import (
     MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_PORT, MYSQL_DB,
-    SECRET_KEY, SQLALCHEMY_TRACK_MODIFICATIONS, SQLALCHEMY_ENGINE_OPTIONS, DEBUG
+    SECRET_KEY, SQLALCHEMY_TRACK_MODIFICATIONS, SQLALCHEMY_ENGINE_OPTIONS, DEBUG, REDIS_URL,
+    MIN_PASSWORD_LENGTH
 )
 from models import User
 from current_user import current_user
+from flask_talisman import Talisman
+from flask_wtf.csrf import CSRFProtect
+from flask_session import Session
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+csrf = CSRFProtect()
+server_session = Session()
+if REDIS_URL:
+    limiter = Limiter(
+        key_func=get_remote_address,
+        default_limits=["3 per second"],
+        storage_uri=REDIS_URL
+    )
+else:
+    limiter = Limiter(
+        key_func=get_remote_address,
+        default_limits=["3 per second"],
+        storage_uri="memory://"
+    )
 
 migrate = Migrate()
 
@@ -37,17 +58,47 @@ def create_app():
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.INFO)
     
+    # Server-side sessions (Redis if available, filesystem fallback)
+    if REDIS_URL:
+        import redis
+        app.config['SESSION_TYPE'] = 'redis'
+        app.config['SESSION_REDIS'] = redis.from_url(REDIS_URL)
+        app.logger.info('Sessions: Redis (%s)', REDIS_URL)
+    else:
+        app.config['SESSION_TYPE'] = 'filesystem'
+        app.config['SESSION_FILE_DIR'] = '/tmp/flask_sessions'
+        app.logger.info('Sessions: filesystem (no REDIS_URL set)')
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    server_session.init_app(app)
+
+    # enable caching
+    limiter.init_app(app)
+
     # Init extensions
     from models import db
     db.init_app(app)
     migrate.init_app(app, db)
+
+    # Security extensions
+    csrf.init_app(app)
+    Talisman(app,
+        force_https=not DEBUG,
+        content_security_policy={
+            'default-src': "'self'",
+            'script-src': "'self'",
+            'style-src': "'self'",
+            'img-src': "'self' data:",
+            'font-src': "'self'",
+        }
+    )
     
     # add current_user to each request 
     @app.before_request
     def load_current_user():
         user_id = session.get('user_id')
         if user_id:
-            current_user.set_user(User.query.get(user_id))
+            current_user.set_user(db.session.get(User, user_id))
         else:
             current_user.set_user(None)
 
@@ -62,6 +113,10 @@ def create_app():
         def require_role(role_name):
             return current_user.has_role(role_name)
         return dict(require_role=require_role)
+
+    @app.context_processor
+    def inject_config():
+        return dict(MIN_PASSWORD_LENGTH=MIN_PASSWORD_LENGTH)
 
     # Register blueprints/routes
     from routes import bp as main_bp

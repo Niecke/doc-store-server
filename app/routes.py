@@ -1,8 +1,8 @@
-from flask import Blueprint, session, request, redirect, url_for, render_template, flash
+from flask import Blueprint, session, request, redirect, url_for, render_template, flash, current_app
 from models import db, User
-from sqlalchemy import text
-from password_handler import verify_password
+from sqlalchemy import text, select
 from security import login_required
+from main import limiter
 
 bp = Blueprint('main', __name__)
 
@@ -10,7 +10,8 @@ def ping_db():
     try:
         db.session.execute(text("SELECT 1"))
         return True
-    except:
+    except Exception as ex:
+        current_app.logger.error(f"DB ping failed: {ex}")
         return False
 
 @bp.route('/health')
@@ -26,15 +27,16 @@ def health():
 def index():
     return render_template('index.html')
 
-
 @bp.route('/login', methods=['GET', 'POST'])
+@limiter.limit("2 per second")
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
         
-        user = User.query.filter_by(email=email).first()
-        if user and verify_password(password=password, password_hash=user.password):
+        user = db.session.execute(select(User).filter_by(email=email)).scalar_one_or_none()
+        if user and user.verify_password(password):
+            session.clear()
             session['user_id'] = user.id
             session['email'] = user.email
             return redirect(url_for('main.index'))
@@ -43,7 +45,7 @@ def login():
     
     return render_template('login.html')
 
-@bp.route('/logout', methods=['POST', 'GET'])
+@bp.route('/logout', methods=['POST'])
 def logout():
     session.clear()
     flash('Logged out successfully')

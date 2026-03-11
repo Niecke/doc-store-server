@@ -2,39 +2,49 @@ services:
   mysql:
     image: docker.io/library/mysql:8.4
     container_name: docstore-mysql
+    env_file: .env
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword123
-      MYSQL_DATABASE: docstore
-      MYSQL_USER: user
-      MYSQL_PASSWORD: your_secure_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword123"]
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mysqladmin ping -h localhost -u root --silent"]
       interval: 10s
       timeout: 5s
       retries: 5
     restart: unless-stopped
 
+  redis:
+    image: docker.io/library/redis:7-alpine
+    container_name: docstore-redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
   app:
     build: .
     container_name: docstore-app
+    env_file: .env
     ports:
       - "8080:8080"
     volumes:
       - ./app:/app
       - ./requirements.txt:/requirements.txt
-    environment:
-      MYSQL_HOST: mysql
-      MYSQL_USER: user
-      MYSQL_PASSWORD: your_secure_password
-      MYSQL_DB: docstore
-      MYSQL_PORT: 3306
-      SECRET_KEY: your-super-secret-key-change-me
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
-    #command: ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--reload", "--reload-engine", "poll", "app:app"]
 
 volumes:
   mysql_data:

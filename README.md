@@ -5,6 +5,8 @@
 - [ ] add flask-session for server side sessions
 - [ ] add CSRF Token to all forms
 - [ ] add multistage build for docker
+- [ ] fix github pipeline
+- [ ] change layout of login to fit the rest of the app
 
 ## Local development
 

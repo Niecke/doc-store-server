@@ -63,3 +63,10 @@ input:focus { outline: none; border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(2
 .checkbox-label input { margin-right: 0.5rem; width: auto; }
 .form-actions { display: flex; gap: 1rem; margin-top: 2rem; }
 .table td.actions { display: flex; align-items: center; gap: 0.5rem; }
+.table td.actions form { margin: 0; }
+
+/* Login page */
+.login-page { font-family: 'Roboto', Arial, sans-serif; max-width: 400px; margin: 100px auto; padding: 20px; background: #f8f9fa; }
+.login-box h2 { margin-bottom: 1rem; }
+.flash { color: #ea4335; margin: 10px 0; font-weight: 500; }
+.login-box button { width: 100%; }

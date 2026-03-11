@@ -9,6 +9,9 @@ from config import (
 from models import User
 from current_user import current_user
 from flask_talisman import Talisman
+from flask_wtf.csrf import CSRFProtect
+
+csrf = CSRFProtect()
 
 migrate = Migrate()
 
@@ -44,7 +47,17 @@ def create_app():
     migrate.init_app(app, db)
 
     # Security extensions
-    Talisman(app)
+    csrf.init_app(app)
+    Talisman(app,
+        force_https=not DEBUG,
+        content_security_policy={
+            'default-src': "'self'",
+            'script-src': "'self'",
+            'style-src': "'self'",
+            'img-src': "'self' data:",
+            'font-src': "'self'",
+        }
+    )
     
     # add current_user to each request 
     @app.before_request

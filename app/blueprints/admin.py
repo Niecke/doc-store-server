@@ -34,7 +34,7 @@ def user_create():
         try:
             user.set_password(password)
         except ValueError as ex:
-            flash(ex, 'error')
+            flash(str(ex), 'error')
             return render_template('admin/user_create.html', email=email)
         
         db.session.add(user)
@@ -62,17 +62,25 @@ def user_edit(id):
         password = request.form.get('password', '').strip()
         active = 'active' in request.form
 
+        changes = []
         if password:
             try:
                 user.set_password(password)
             except ValueError as ex:
-                flash(ex, 'error')
+                flash(str(ex), 'error')
                 return render_template('admin/user_edit.html', user=user)
+            changes.append('password')
+
+        if active != user.active:
+            changes.append(f'active={active}')
 
         user.active = active
         db.session.commit()
 
-        current_app.logger.info('User updated: %s', user.email, extra={'log_type': 'audit'})
+        current_app.logger.info(
+            'User updated: %s (changed: %s)', user.email, ', '.join(changes) or 'none',
+            extra={'log_type': 'audit'},
+        )
         flash(f'User "{user.email}" updated successfully!', 'success')
         return redirect(url_for('admin.dashboard'))
 

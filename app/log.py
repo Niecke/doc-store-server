@@ -10,6 +10,7 @@ def setup_app_logger(app) -> None:
     handler.setFormatter(JsonFormatter())
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.INFO)
+    app.logger.propagate = False
 
 
 class JsonFormatter(logging.Formatter):

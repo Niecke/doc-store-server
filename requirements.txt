@@ -12,4 +12,4 @@ flask-session==0.8.0
 redis==7.3.0
 flask-limiter==4.1.1
 Pillow==12.1.1
-PyMuPDF==1.25.5
+PyMuPDF==1.27.2

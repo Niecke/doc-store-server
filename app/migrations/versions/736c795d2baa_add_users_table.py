@@ -9,8 +9,7 @@ from alembic import op
 import sqlalchemy as sa
 from models import db, User, Role
 from password_handler import hash_password
-
-
+from config import INIT_ADMIN_PASSWORD
 
 
 # revision identifiers, used by Alembic.
@@ -41,7 +40,9 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('role_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['role_id'], ['role.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.Index('ix_roles_users_user_id', 'user_id'),
+    sa.Index('ix_roles_users_role_id', 'role_id')
     )
 
     # CREATE ADMIN
@@ -54,7 +55,7 @@ def upgrade():
     # Create admin user
     admin_user = User(
         email='admin',
-        password=hash_password('admin123'),
+        password=hash_password(INIT_ADMIN_PASSWORD),
         roles=[admin_role],
         active=True,
     )

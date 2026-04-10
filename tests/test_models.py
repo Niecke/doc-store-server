@@ -1,6 +1,7 @@
 """
 Tests for database models (User, Role) and the password handler module.
 """
+
 import pytest
 from models import db, User, Role
 from password_handler import hash_password, verify_password

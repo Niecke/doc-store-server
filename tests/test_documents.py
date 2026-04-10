@@ -5,6 +5,7 @@ Covers: library, upload, download, thumbnail, edit, delete.
 All tests use the shared fixtures from conftest.py (SQLite in-memory DB,
 CSRF disabled, rate limiting disabled).
 """
+
 import io
 import sys
 import os
@@ -22,9 +23,11 @@ from sqlalchemy import select
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def make_jpeg_bytes():
     """Return a minimal valid 10×10 JPEG."""
     from PIL import Image
+
     img = Image.new("RGB", (10, 10), color=(255, 0, 0))
     buf = io.BytesIO()
     img.save(buf, format="JPEG")
@@ -34,6 +37,7 @@ def make_jpeg_bytes():
 def make_png_bytes():
     """Return a minimal valid 10×10 PNG (RGBA)."""
     from PIL import Image
+
     img = Image.new("RGBA", (10, 10), color=(0, 255, 0, 128))
     buf = io.BytesIO()
     img.save(buf, format="PNG")
@@ -51,9 +55,7 @@ def upload_file(client, filename, data, content_type="text/plain"):
 
 def get_user_doc(user_email):
     """Return the first Document row for a given user email."""
-    u = db.session.execute(
-        select(User).where(User.email == user_email)
-    ).scalar_one()
+    u = db.session.execute(select(User).where(User.email == user_email)).scalar_one()
     return db.session.execute(
         select(Document).where(Document.user_id == u.id)
     ).scalar_one()
@@ -62,6 +64,7 @@ def get_user_doc(user_email):
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def user1():
@@ -84,6 +87,7 @@ def user2():
 # ---------------------------------------------------------------------------
 # Library
 # ---------------------------------------------------------------------------
+
 
 class TestLibrary:
     def test_requires_login(self, client):
@@ -120,6 +124,7 @@ class TestLibrary:
 # ---------------------------------------------------------------------------
 # Upload
 # ---------------------------------------------------------------------------
+
 
 class TestUpload:
     def test_requires_login(self, client):
@@ -158,9 +163,9 @@ class TestUpload:
 
     def test_upload_no_file_part(self, client, user1):
         do_login(client, user1.email, "DocUser1Pass!")
-        rv = client.post("/documents/upload",
-                         data={},
-                         content_type="multipart/form-data")
+        rv = client.post(
+            "/documents/upload", data={}, content_type="multipart/form-data"
+        )
         assert rv.status_code == 400
         assert rv.get_json()["success"] is False
 
@@ -177,6 +182,7 @@ class TestUpload:
     def test_upload_file_too_large(self, client, user1, monkeypatch):
         do_login(client, user1.email, "DocUser1Pass!")
         import blueprints.documents as doc_bp
+
         monkeypatch.setattr(doc_bp, "MAX_FILE_SIZE", 5)
         rv = upload_file(client, "big.txt", b"more than five bytes")
         assert rv.status_code == 400
@@ -185,6 +191,7 @@ class TestUpload:
     def test_upload_doc_count_limit(self, client, user1, monkeypatch):
         do_login(client, user1.email, "DocUser1Pass!")
         import blueprints.documents as doc_bp
+
         monkeypatch.setattr(doc_bp, "MAX_DOCS_PER_USER", 0)
         rv = upload_file(client, "one.txt", b"content")
         assert rv.status_code == 400
@@ -214,6 +221,7 @@ class TestUpload:
 # ---------------------------------------------------------------------------
 # Download
 # ---------------------------------------------------------------------------
+
 
 class TestDownload:
     def test_requires_login(self, client, user1):
@@ -255,6 +263,7 @@ class TestDownload:
 # ---------------------------------------------------------------------------
 # Thumbnail
 # ---------------------------------------------------------------------------
+
 
 class TestThumbnail:
     def test_jpeg_has_thumbnail(self, client, user1):
@@ -305,6 +314,7 @@ class TestThumbnail:
 # ---------------------------------------------------------------------------
 # Edit
 # ---------------------------------------------------------------------------
+
 
 class TestEdit:
     def _setup(self, client, email, password):
@@ -367,6 +377,7 @@ class TestEdit:
 # ---------------------------------------------------------------------------
 # Delete
 # ---------------------------------------------------------------------------
+
 
 class TestDelete:
     def _setup(self, client, email, password):

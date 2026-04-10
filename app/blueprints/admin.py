@@ -14,7 +14,7 @@ from security import login_required, require_role
 admin = Blueprint("admin", __name__, url_prefix="/admin")
 
 
-@admin.route("/", methods=["GET", "POST"])
+@admin.route("/users", methods=["GET", "POST"])
 @login_required
 @require_role("admin")
 def user_list():
